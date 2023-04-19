@@ -27,6 +27,7 @@ def parseURLs(url):
 
   quote_summary = getQuoteSummary(html)
   character_data.update(quote_summary)
+  character_data['Physical Characteristics'] = parsePhysical(character_data['Physical Characteristics'])
   
   return character_data
   
@@ -83,8 +84,7 @@ def getBasics(html):
 for url in urls:
   character = parseURLs(url)
   for key in character:
-    if key == 'Physical Characteristics' or key == 'Name' or key == 'Current Alias':
-      print(key + ': ' + character[key])
+    print(key + ': ', character[key])
 
   print('\n')
 
