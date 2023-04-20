@@ -48,10 +48,8 @@ filter_functions = [
 
 def parseMetric(s):
     result = ''
-
     create = False
     index = 0
-
     while s[index] != ')':
         if create:
             result += s[index]
@@ -66,17 +64,33 @@ def parseMetric(s):
 
 def parsePhysical(s): 
     result = {}
-    result['Gender'] = s.split('Gender', 1)[1].split('Height', 1)[0]
-    chunk = s.split('Height', 1)[1].partition(')')
-    result['Height(m)'] = '' + chunk[0] + chunk[1]
-    result['Weight(kg)'] = s.split('Weight', 1)[1].split('Eyes', 1)[0]
-    result['Height(m)'] = parseMetric(result['Height(m)'])
-    result['Weight(kg)'] = parseMetric(result['Weight(kg)'])
-    result['Eyes'] = s.split(':', 1)[1].split('Hair', 1)[0]
-    result['Hair'] = s.split('Hair', 1)[1].split('Unusual Features')[0]
-    if result['Eyes'].startswith('No Eyes'):
+    try:
+        # result['Gender'] = s.split('Gender', 1)[1].split('Height', 1)[0]
+        result['Gender'] = re.split('(H|E)', s.split('Gender', 1)[1])[0]
+    except:
+        result['Gender'] = None
+    try:
+        chunk = s.split('Height', 1)[1].partition(')')
+        result['Height(m)'] = '' + chunk[0] + chunk[1]
+        result['Height(m)'] = parseMetric(result['Height(m)'])
+    except:
+        result['Height(m)'] = None
+    try:
+        result['Weight(kg)'] = s.split('Weight', 1)[1].split('Eyes', 1)[0]
+        result['Weight(kg)'] = parseMetric(result['Weight(kg)'])
+    except:
+        result['Weight(kg)'] = None
+    try:
+        result['Eyes'] = s.split(':', 1)[1].split('Hair', 1)[0]
+    except:
         result['Eyes'] = None
-    if result['Hair'].startswith('No Hair'):
+    try:
+        result['Hair'] = s.split('Hair', 1)[1].split('Unusual Features')[0]
+    except:
+        result['Hair'] = None
+    if result['Eyes'] != None and result['Eyes'].startswith('No Eyes'):
+        result['Eyes'] = None
+    if result['Hair'] != None and result['Hair'].startswith('No Hair'):
         result['Hair'] = None
     try:
         result['Unusual Features'] = s.split('Unusual Features', 1)[1]
@@ -84,3 +98,20 @@ def parsePhysical(s):
         result['Unusual Features'] = None
 
     return result
+
+
+def is_char_link(link):
+    if link == None:
+        return False
+    elif link.startswith('/wiki') and link.endswith('616)'):
+        return True
+    return False
+
+
+def is_next_link(class_name):
+        class_str='pagination-next'
+        if class_name == None:
+          return False
+        elif class_str in class_name:
+          return True
+        return False
