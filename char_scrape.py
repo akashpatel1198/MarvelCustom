@@ -1,36 +1,48 @@
 from bs4 import BeautifulSoup, NavigableString, Tag
 import requests
+import os
+import json
 from utility import is_char_link, is_next_link
+# original page
+# "https://marvel.fandom.com/wiki/Category:Characters?from=A"
 
-startURL = 'https://marvel.fandom.com/wiki/Category:Characters?from=A'
+def getCharURLs():
+  path = 'char_data'
+  read_path = os.path.join(path, 'current_page.json')
+  with open(read_path, 'r') as f:
+    current = json.load(f)
 
-def getCharURLs(start):
-    char_set = set(())
-    next_link = start
+  char_set = set(())
+  next_link = current['next_page']
+  page_original = current['page_index']
+  page_current = current['page_index']
 
-    page_count = 0
+  while next_link != False:
+    if page_current - page_original >= 10:
+      break
+    page_current += 1
+    print('On page', page_current)
+    req = requests.get(next_link)
+    html = BeautifulSoup(req.text, 'html.parser')
+    char_tags = html.find_all('a', href=is_char_link)
+    for tag in char_tags:
+      href = tag['href']
+      char_set.add(href)
+    next_link_tag = html.find('a', class_=is_next_link)
+    if isinstance(next_link_tag, Tag):
+      next_link = next_link_tag['href']
+    else:
+      next_link = False
 
-    while next_link != False:
-      if page_count > 15:
-        break
-      page_count += 1
+  current['page_index'] = page_current
+  current['next_page'] = next_link
 
-      req = requests.get(next_link)
-      html = BeautifulSoup(req.text, 'html.parser')
+  with open(read_path, 'w') as f:
+    json.dump(current, f, indent=2)
 
-      char_tags = html.find_all('a', href=is_char_link)
-      for tag in char_tags:
-        href = tag['href']
-        char_set.add(href)
+  write_path = os.path.join(path, f"page{page_original}_page{page_current}.json")
+  with open(write_path, 'w') as f:
+    json.dump(list(char_set), f, indent=2)
 
-      next_link_tag = html.find('a', class_=is_next_link)
-      if isinstance(next_link_tag, Tag):
-        next_link = next_link_tag['href']
-      else:
-        next_link = False
+  return
 
-    return char_set
-
-# my_char_set = getCharURLs(startURL)
-# for link in my_char_set:
-#    print(link)

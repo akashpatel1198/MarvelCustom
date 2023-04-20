@@ -16,7 +16,7 @@ def parseURLs(url):
   quote_summary = getQuoteSummary(html)
   character_data.update(quote_summary)
   character_data['Physical Characteristics'] = parsePhysical(character_data['Physical Characteristics'])
-  
+
   return character_data
   
 

@@ -45,7 +45,6 @@ filter_functions = [
     parseCreators
 ]
 
-
 def parseMetric(s):
     result = ''
     create = False
@@ -60,7 +59,6 @@ def parseMetric(s):
     result = result.split(' ')[0]
     result = float(result)
     return result
-
 
 def parsePhysical(s): 
     result = {}
@@ -99,14 +97,12 @@ def parsePhysical(s):
 
     return result
 
-
 def is_char_link(link):
     if link == None:
         return False
     elif link.startswith('/wiki') and link.endswith('616)'):
         return True
     return False
-
 
 def is_next_link(class_name):
         class_str='pagination-next'
@@ -115,3 +111,4 @@ def is_next_link(class_name):
         elif class_str in class_name:
           return True
         return False
+
